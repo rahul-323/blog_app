@@ -17,17 +17,16 @@ class BlogRemoteDataSourceImpl implements BlogRemoteDataSource {
   @override
   Future<BlogModel> uploadBlog(BlogModel blog) async {
     try {
-      print('Uploading blog: ${blog.toJson()}');
       final blogData =
           await supabaseClient.from('blogs').insert([blog.toJson()]).select();
-
-      print('Response from Supabase: $blogData');
 
       if (blogData != null && blogData.isNotEmpty) {
         return BlogModel.fromJson(blogData.first);
       } else {
-        throw ServerException('Failed to upload blog: No data returned');
+        throw const ServerException('Failed to upload blog: No data returned');
       }
+    } on PostgrestException catch (e) {
+      throw ServerException(e.message);
     } catch (e) {
       throw ServerException(e.toString());
     }
@@ -62,6 +61,8 @@ class BlogRemoteDataSourceImpl implements BlogRemoteDataSource {
             ),
           )
           .toList();
+    } on StorageException catch (e) {
+      throw ServerException(e.message);
     } catch (e) {
       throw ServerException(e.toString());
     }

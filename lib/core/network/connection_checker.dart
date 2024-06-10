@@ -1,13 +1,15 @@
-abstract interface class ConnectionChecker {
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+
+abstract class ConnectionChecker {
   Future<bool> get isConnected;
 }
 
 class ConnectionCheckerImpl implements ConnectionChecker {
-  final ConnectionChecker internetConnectionChecker;
+  final InternetConnection internetConnection;
 
-  ConnectionCheckerImpl(this.internetConnectionChecker);
+  ConnectionCheckerImpl(this.internetConnection);
 
   @override
   Future<bool> get isConnected async =>
-      await internetConnectionChecker.isConnected;
+      await internetConnection.hasInternetAccess;
 }
