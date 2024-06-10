@@ -7,8 +7,10 @@ class Blog {
   final String content;
   final List<String> topics;
   final DateTime updatedAt;
+  final String? posterName;
 
   Blog({
+    this.posterName,
     required this.id,
     required this.posterId,
     required this.imageUrl,

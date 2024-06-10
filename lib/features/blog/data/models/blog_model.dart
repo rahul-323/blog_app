@@ -9,6 +9,7 @@ class BlogModel extends Blog {
     required super.content,
     required super.updatedAt,
     required super.topics,
+    super.posterName,
   });
 
   Map<String, dynamic> toJson() {
@@ -30,10 +31,11 @@ class BlogModel extends Blog {
       imageUrl: map['image_url'] as String,
       title: map['title'] as String,
       content: map['content'] as String,
-      topics: List<String>.from(map['topics'] as List<String>),
+      topics:
+          (map['topics'] as List<dynamic>).map((e) => e.toString()).toList(),
       updatedAt: map['updated_at'] == null
           ? DateTime.now()
-          : DateTime.parse(map['updated_at'] ?? []),
+          : DateTime.parse(map['updated_at']),
     );
   }
 
@@ -43,6 +45,7 @@ class BlogModel extends Blog {
     String? imageUrl,
     String? title,
     String? content,
+    String? posterName,
     List<String>? topics,
     DateTime? updatedAt,
   }) {
@@ -53,6 +56,7 @@ class BlogModel extends Blog {
       title: title ?? this.title,
       content: content ?? this.content,
       topics: topics ?? this.topics,
+      posterName: posterName ?? this.posterName,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }

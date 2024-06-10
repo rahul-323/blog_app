@@ -8,6 +8,7 @@ abstract interface class BlogRemoteDataSource {
   Future<BlogModel> uploadBlog(BlogModel blog);
   Future<String> uploadBlogImage(
       {required File image, required BlogModel blog});
+  Future<List<BlogModel>> getAllBlogs();
 }
 
 class BlogRemoteDataSourceImpl implements BlogRemoteDataSource {
@@ -16,10 +17,17 @@ class BlogRemoteDataSourceImpl implements BlogRemoteDataSource {
   @override
   Future<BlogModel> uploadBlog(BlogModel blog) async {
     try {
+      print('Uploading blog: ${blog.toJson()}');
       final blogData =
-          await supabaseClient.from('blogs').insert({blog.toJson()}).select();
+          await supabaseClient.from('blogs').insert([blog.toJson()]).select();
 
-      return BlogModel.fromJson(blogData.first);
+      print('Response from Supabase: $blogData');
+
+      if (blogData != null && blogData.isNotEmpty) {
+        return BlogModel.fromJson(blogData.first);
+      } else {
+        throw ServerException('Failed to upload blog: No data returned');
+      }
     } catch (e) {
       throw ServerException(e.toString());
     }
@@ -31,7 +39,29 @@ class BlogRemoteDataSourceImpl implements BlogRemoteDataSource {
     try {
       await supabaseClient.storage.from('blog_images').upload(blog.id, image);
 
-      return supabaseClient.storage.from('blog_images').getPublicUrl(blog.id);
+      final url =
+          supabaseClient.storage.from('blog_images').getPublicUrl(blog.id);
+      print('Image uploaded successfully, URL: $url');
+      return url;
+    } catch (e) {
+      print('Error in uploadBlogImage: $e');
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<List<BlogModel>> getAllBlogs() async {
+    try {
+      final blogs =
+          await supabaseClient.from('blogs').select('*, profiles(name)');
+
+      return blogs
+          .map(
+            (blog) => BlogModel.fromJson(blog).copyWith(
+              posterName: blog['profiles']['name'],
+            ),
+          )
+          .toList();
     } catch (e) {
       throw ServerException(e.toString());
     }

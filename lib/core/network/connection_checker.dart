@@ -2,13 +2,12 @@ abstract interface class ConnectionChecker {
   Future<bool> get isConnected;
 }
 
-class ConnectionCheckerImpl implements ConnectionChecker{
+class ConnectionCheckerImpl implements ConnectionChecker {
+  final ConnectionChecker internetConnectionChecker;
 
-  final InternetConnection internetConnection;
+  ConnectionCheckerImpl(this.internetConnectionChecker);
+
   @override
-
-  Future<bool> get isConnected ()async{
-
-  }
-
+  Future<bool> get isConnected async =>
+      await internetConnectionChecker.isConnected;
 }
